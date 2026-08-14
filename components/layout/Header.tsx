@@ -1,5 +1,8 @@
+"use client"
+
 import Link from "next/link"
 import { siteConfig } from "@/content/config"
+import { useHeaderVisibility } from "@/hooks/useHeaderVisibility"
 
 const navLinks = [
   // { label: "Playground", href: "/playground" }, // hidden until Playground section launches
@@ -8,8 +11,21 @@ const navLinks = [
 ]
 
 export function Header() {
+  const visible = useHeaderVisibility()
+
   return (
-    <header className="sticky top-0 z-50 w-full flex flex-col md:flex-row md:h-[56px]">
+    <header
+      className={[
+        // Mobile: sticky; Desktop: fixed and positioned
+        "sticky top-0 md:fixed md:top-0 md:left-0 md:right-0 z-50 w-full",
+        "flex flex-col md:flex-row md:h-[56px]",
+        // Hide by transforming up — only applied at md+ via arbitrary class
+        !visible ? "md:[transform:translateY(-100%)]" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={{ transition: "transform 250ms ease-in-out" }}
+    >
       {/*
         Mobile: flex row (Row 1) — logo left, nav right, 56px tall.
         Desktop (md+): display:contents — this div dissolves, children join

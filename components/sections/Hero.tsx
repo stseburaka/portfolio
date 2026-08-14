@@ -1,6 +1,6 @@
 export function Hero() {
   return (
-    <section className="min-h-[calc(100svh-56px)] grid grid-cols-1 md:grid-cols-[5fr_7fr] gap-10 py-12 md:py-16">
+    <section className="min-h-[70svh] md:min-h-[calc(100dvh-56px)] grid grid-cols-1 md:grid-cols-[5fr_7fr] gap-10 py-12 md:py-16">
       {/* Left column: intro + placeholder */}
       <div className="flex flex-col gap-8">
         <p className="text-[20px] leading-[1.4] tracking-[-0.02em] text-ink max-w-[423px]">
