@@ -1,15 +1,26 @@
+import { Container } from "@/components/layout/Container"
+import { Hero } from "@/components/sections/Hero"
+import { SelectedWork } from "@/components/sections/SelectedWork"
+import { About } from "@/components/sections/About"
+import { ExperienceTimeline } from "@/components/sections/ExperienceTimeline"
+import { MoreWork } from "@/components/sections/MoreWork"
+import { GetInTouch } from "@/components/sections/GetInTouch"
+import { siteConfig } from "@/content/config"
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black flex flex-col items-center justify-center gap-4">
-      <p className="text-white/40 text-xs tracking-widest uppercase">
-        Andrei Stseburaka
-      </p>
-      <h1 className="text-white text-4xl font-light tracking-tight">
-        Work in progress
-      </h1>
-      <p className="text-white/40 text-sm">
-        New portfolio coming soon
-      </p>
-    </main>
-  );
+    <Container>
+      <Hero />
+      <SelectedWork />
+      <About />
+      <ExperienceTimeline />
+      {siteConfig.showPlaygroundSection && (
+        <section className="py-16">
+          {/* Playground section — enable via siteConfig.showPlaygroundSection */}
+        </section>
+      )}
+      <MoreWork />
+      <GetInTouch />
+    </Container>
+  )
 }
