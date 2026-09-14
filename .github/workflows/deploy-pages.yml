@@ -17,8 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_BASE_PATH: /portfolio
     steps:
       - name: Checkout
         uses: actions/checkout@v6
