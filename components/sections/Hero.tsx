@@ -513,8 +513,8 @@ export function Hero() {
         className="hidden md:block absolute text-[20px] leading-[1.4] tracking-[-0.02em] text-ink"
         style={{ top: 16, left: 16, maxWidth: 340, zIndex: 3 }}
       >
-        11+ years designing B2B software. Currently at PandaDoc in Berlin.
-        Previously at Sberbank. Red Dot Award winner.
+        11+ years designing B2B software across fintech, SaaS, and AI
+        products. Red Dot Award winner.
       </p>
 
       <h1
@@ -611,8 +611,8 @@ export function Hero() {
       {/* Mobile layout — simple stack */}
       <div className="md:hidden flex flex-col gap-8 py-12 relative" style={{ zIndex: 10 }}>
         <p className="text-[20px] leading-[1.4] tracking-[-0.02em] text-ink max-w-[423px]">
-          11+ years designing B2B software. Currently at PandaDoc in Berlin.
-          Previously at Sberbank. Red Dot Award winner.
+          11+ years designing B2B software across fintech, SaaS, and AI
+          products. Red Dot Award winner.
         </p>
         <h1 className="text-[56px] font-medium leading-none tracking-[-0.06em] text-ink text-right">
           I design and ship complex products
