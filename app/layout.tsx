@@ -21,7 +21,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Andrei Stseburaka — Senior Product Designer",
   description:
-    "Senior Product Designer with 11+ years of experience in complex B2B SaaS products. Currently at PandaDoc in Berlin.",
+    "Senior Product Designer with 11+ years designing B2B software across fintech, SaaS, and AI products. Red Dot Award winner.",
 }
 
 export default function RootLayout({
