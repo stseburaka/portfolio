@@ -11,6 +11,10 @@ export interface CaseStudy {
   metrics: Metric[]
   imagePosition: "left" | "right"
   imageBg: "gradient" | "light" | "dark"
+  tagLine?: string
+  ctaText?: string
+  ctaHref?: string
+  ctaExternal?: boolean
 }
 
 export interface WorkItem {
@@ -26,7 +30,8 @@ export interface PandaDocItem {
   slug: string
   title: string
   description: string
-  outcome: string
+  achievementPrimary: string
+  achievementSecondary: string
 }
 
 export interface EarlierWorkItem {
@@ -41,7 +46,7 @@ export interface EarlierWorkItem {
 export const caseStudies: CaseStudy[] = [
   {
     slug: "recipient-experience",
-    tag: "PANDADOC · RECIPIENT EXPERIENCE",
+    tag: "PandaDoc · Recipient Experience",
     headline: "Redesigning the signing experience for millions of recipients",
     description:
       "What started as separate improvements across signing, verification, and sharing evolved into redesigning the recipient experience as one connected system.",
@@ -54,7 +59,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: "rooms",
-    tag: "PANDADOC · ROOMS",
+    tag: "PandaDoc · Rooms",
     headline: "Building a collaborative deal room from the ground up",
     description:
       "What started with 20+ customer interviews became a new PandaDoc product: taking Rooms from early discovery to launch in nine months.",
@@ -63,7 +68,7 @@ export const caseStudies: CaseStudy[] = [
       { value: "50%", label: "solutions / blockers" },
       { value: "70%", label: "3-month retention" },
     ],
-    imagePosition: "left",
+    imagePosition: "right",
     imageBg: "light",
   },
 ]
@@ -85,25 +90,37 @@ export const pandadocWork: PandaDocItem[] = [
     slug: "chatgpt-app",
     title: "ChatGPT App",
     description: "Designing PandaDoc experiences for conversational AI",
-    outcome: "AI · 0→1 · Prototyping",
+    achievementPrimary: "0 → 1",
+    achievementSecondary: "Conversational AI",
   },
   {
     slug: "notary",
     title: "PandaDoc Notary",
-    description: "Expanding the product into regulated signing workflows",
-    outcome: "New use cases · Revenue · Compliance",
+    description: "Expanding PandaDoc Notary into regulated signing workflows",
+    achievementPrimary: "New revenue streams",
+    achievementSecondary: "Regulated signing",
   },
   {
     slug: "smart-content",
     title: "Smart Content",
-    description: "Simplifying content personalization in complex sales documents",
-    outcome: "+2.5% New ARR",
+    description: "Simplifying sales document personalization with Smart Content",
+    achievementPrimary: "+2.5%",
+    achievementSecondary: "New ARR",
   },
   {
     slug: "performance-reliability",
     title: "Performance & Reliability",
-    description: "Improving real and perceived product performance",
-    outcome: "+7 NPS",
+    description: "Improving product performance and perceived reliability",
+    achievementPrimary: "+7 NPS",
+    achievementSecondary: "~20% growth",
+  },
+  {
+    slug: "document-editor",
+    title: "Document Editor",
+    description:
+      "Enhanced the editor with drawing and annotation tools, replaced custom CSS, and supported migration to the new app.",
+    achievementPrimary: "100%",
+    achievementSecondary: "Accounts migrated",
   },
 ]
 
@@ -111,8 +128,8 @@ export const earlierWork: EarlierWorkItem[] = [
   {
     slug: "fintech-platform",
     title: "Fintech Platform",
-    description: "Digital lending experience",
-    context: "Production studio",
+    description: "Digital lending products for financial services",
+    context: "Lepshey · Production studio",
     image: "/images/fintech-platform-poster.jpg",
     video: "/videos/fintech-platform.mp4",
   },
@@ -120,7 +137,7 @@ export const earlierWork: EarlierWorkItem[] = [
     slug: "ai-deal-scoring",
     title: "AI deal scoring",
     description: "ML-powered opportunity scoring for sales teams",
-    context: "Machine learning startup",
+    context: "Uptic Lab · Machine learning startup",
     image: "/images/ai-deal-scoring.webp",
   },
 ]

@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: var(--font-poppins);
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 
   --color-ink: #0a0a0a;
   --color-ink-2: #555555;
@@ -26,5 +27,112 @@ body {
   * {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+  }
+}
+
+/* Logo A. → Andrei. expand animation (hover-capable devices only) */
+
+/* Non-hover / touch: hide Andrei. from layout entirely */
+.logo-andrei {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Container clips "Andrei." by default, expands on hover */
+  .logo-link {
+    overflow: hidden;
+    max-width: 72px; /* approx width of "A." + px-4 padding; fine-tune ±4px if needed */
+    transition: max-width 300ms ease-in-out;
+  }
+  .logo-link:hover {
+    max-width: 300px; /* generous ceiling; actual content ~162px */
+  }
+
+  /* "Andrei." back in flow — drives natural container width */
+  .logo-andrei {
+    display: block;
+    opacity: 0;
+    transition: opacity 150ms ease-in-out; /* leave: fade out fast */
+  }
+  .logo-link:hover .logo-andrei {
+    opacity: 1;
+    transition: opacity 200ms ease-in-out 100ms; /* enter: fade in after A. starts leaving */
+  }
+
+  /* "A." becomes absolute overlay over "Andrei." */
+  .logo-a {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;  /* match link's px-4 */
+    padding-right: 1rem;
+    opacity: 1;
+    transition: opacity 200ms ease-in-out 100ms; /* leave: fade in after Andrei. starts leaving */
+  }
+  .logo-link:hover .logo-a {
+    opacity: 0;
+    transition: opacity 150ms ease-in-out; /* enter: fade out fast */
+  }
+}
+
+/* Reduced motion: instant swap, no movement */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+  .logo-link,
+  .logo-a,
+  .logo-andrei {
+    transition: none !important;
+  }
+}
+
+/* Hero logo drift animation */
+@keyframes hero-drift {
+  0%, 100% { transform: translate(0, 0); }
+  30%       { transform: translate(var(--dx, 8px), var(--dy, -6px)); }
+  70%       { transform: translate(calc(var(--dx, 8px) * -0.5), calc(var(--dy, -6px) * 0.6)); }
+}
+
+.hero-logo {
+  animation-name: hero-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-logo { animation: none !important; }
+}
+
+/* Hero frame sub-label reveal — uses the standalone `translate` property so it
+   composes with each row's own static `transform: translateX(...)` jitter
+   instead of overwriting it. */
+@keyframes hero-sublabel-in {
+  from { opacity: 0; translate: 0 8px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* Hero scroll cue arrow — vertical marquee/ticker: enters above its viewport, moves
+   linearly through center, exits fully below, then loops from above again. Both loop
+   endpoints sit outside the visible 28px viewport so the restart is never seen. */
+@keyframes hero-scroll-cue-arrow {
+  0% { transform: translateY(-16px); }
+  50% { transform: translateY(6px); }
+  100% { transform: translateY(28px); }
+}
+
+.hero-scroll-arrow {
+  animation: hero-scroll-cue-arrow 1600ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-arrow { animation: none !important; }
+}
+
+/* Vertical rhythm between top-level page sections */
+.section-gap {
+  margin-top: 2rem; /* 32px mobile */
+}
+@media (min-width: 768px) {
+  .section-gap {
+    margin-top: 4rem; /* 64px desktop */
   }
 }

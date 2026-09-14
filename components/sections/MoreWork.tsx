@@ -1,6 +1,10 @@
 import { SectionLabel } from "@/components/ui/SectionLabel"
 import { FeaturedProject } from "@/components/ui/FeaturedProject"
 import { pandadocWork, earlierWork } from "@/content/work"
+import { assetPath } from "@/lib/paths"
+
+const metaLabelClass =
+  "font-mono text-[14px] font-normal tracking-[0.01em] text-ink leading-[1.4]"
 
 const sberbankVisual = (
   <video
@@ -10,32 +14,21 @@ const sberbankVisual = (
     loop
     playsInline
     preload="metadata"
-    poster="/images/sberbank-banking-poster.jpg"
+    poster={assetPath("/images/sberbank-banking-poster.jpg")}
   >
-    <source src="/videos/sberbank-banking.mp4" type="video/mp4" />
+    <source src={assetPath("/videos/sberbank-banking.mp4")} type="video/mp4" />
   </video>
 )
-
-// Dividers between cells — no gaps, only border lines.
-// Desktop (xl, 4-col): border-r on items 0,1,2
-// Tablet (md, 2-col):  border-r on items 0,2 + border-b on items 0,1
-// Mobile (1-col):      border-b on items 0,1,2
-const pandadocBorders = [
-  "border-b border-border md:border-r xl:border-b-0",
-  "border-b border-border xl:border-b-0 xl:border-r",
-  "border-b border-border md:border-b-0 md:border-r",
-  "",
-]
 
 export function MoreWork() {
   return (
     <section className="py-16">
       <SectionLabel withBorder>MORE WORK</SectionLabel>
 
-      <div className="mt-12 flex flex-col gap-16">
+      <div className="mt-16 flex flex-col">
         {/* Sberbank — featured project block */}
         <FeaturedProject
-          eyebrow="SBERBANK · BUSINESS BANKING"
+          eyebrow="Sberbank · Business Banking"
           title="Designing cross-platform banking for entrepreneurs"
           description="A customizable business banking platform built around task-focused workflows."
           imagePosition="right"
@@ -44,85 +37,92 @@ export function MoreWork() {
           ctaText="Red Dot Award Winner"
           ctaHref="https://www.red-dot.org/project/sberbank-business-online-55211"
           ctaExternal
+          cursorLabel="View on Red Dot ↗"
         />
 
-        {/* More from PandaDoc — editorial 4-column grid */}
-        <div>
-          <SectionLabel withBorder>MORE FROM PANDADOC</SectionLabel>
-          <div className="mt-6 bg-surface grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+        {/* More from PandaDoc — vertical project index, table-like structure.
+            Larger margin-top here (not a flex gap) so this block sits noticeably
+            further from Sberbank while its own header stays tight to the table. */}
+        <div className="mt-20 md:mt-[144px]">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] md:gap-x-12">
+            <p className={metaLabelClass}>
+              More from PandaDoc
+            </p>
+            <p className={`hidden md:block md:text-right ${metaLabelClass}`}>
+              Outcome
+            </p>
+          </div>
+
+          <div className="mt-6 flex flex-col border-t border-b border-border">
             {pandadocWork.map((item, i) => (
               <div
                 key={item.slug}
-                className={`flex flex-col justify-between p-6 min-h-[256px] ${pandadocBorders[i]}`}
+                className={`grid grid-cols-1 md:grid-cols-[1fr_auto] items-start gap-x-12 gap-y-6 py-6 ${
+                  i > 0 ? "border-t border-border" : ""
+                }`}
               >
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
                   <h3 className="text-[32px] font-medium leading-[1.2] tracking-[-0.06em] text-ink">
                     {item.title}
                   </h3>
-                  <p className="text-[18px] leading-[1.4] tracking-[-0.02em] text-ink">
+                  <p className="text-[16px] leading-[1.4] tracking-[-0.02em] text-ink">
                     {item.description}
                   </p>
                 </div>
-                <p className="text-[14px] leading-[1.4] text-ink-2 mt-6">
-                  {item.outcome}
-                </p>
+                <div className="flex flex-row flex-wrap items-baseline gap-3 md:flex-col md:flex-nowrap md:items-end md:gap-2 md:text-right">
+                  <p className="text-[24px] md:text-[32px] font-medium leading-[1.2] tracking-[-0.06em] text-ink">
+                    {item.achievementPrimary}
+                  </p>
+                  <p className="font-mono text-[14px] leading-[1.4] text-ink-2">
+                    {item.achievementSecondary}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Earlier Work — image/video + content pairs */}
-        <div>
-          <SectionLabel withBorder>EARLIER WORK</SectionLabel>
-          <div className="mt-6 flex flex-col md:flex-row">
-            {earlierWork.map((item, i) => (
-              <article
-                key={item.slug}
-                className={`flex flex-col md:flex-row md:w-1/2 min-h-[320px] ${
-                  i === 0 ? "border-b border-border md:border-b-0 md:border-r" : ""
-                }`}
-              >
-                {/* Media */}
-                <div className="overflow-hidden min-h-[260px] md:min-h-0 md:w-1/2 shrink-0">
-                  {item.video ? (
-                    <video
-                      className="w-full h-full object-cover"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      poster={item.image}
-                    >
-                      <source src={item.video} type="video/mp4" />
-                    </video>
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
+        {/* Earlier Work — two equal columns, each its own local subsection
+            (employer label + divider + media + title/description). */}
+        <div className="mt-16 md:mt-[160px] grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-4">
+          {earlierWork.map((item) => (
+            <div key={item.slug}>
+              <p className={metaLabelClass}>{item.context}</p>
+              <div className="mt-2 border-t border-border" />
 
-                {/* Content */}
-                <div className="bg-surface flex flex-col justify-between p-6 flex-1">
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-[28px] font-medium leading-[1.2] tracking-[-0.06em] text-ink">
-                      {item.title}
-                    </h3>
-                    <p className="text-[16px] leading-[1.4] tracking-[-0.02em] text-ink">
-                      {item.description}
-                    </p>
-                  </div>
-                  <p className="text-[14px] leading-[1.4] text-ink-2 mt-6">
-                    {item.context}
-                  </p>
+              {item.video ? (
+                <video
+                  className="mt-6 w-full h-auto object-contain"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  poster={assetPath(item.image)}
+                >
+                  <source src={assetPath(item.video)} type="video/mp4" />
+                </video>
+              ) : (
+                // Matches the Fintech video's actual rendered ratio (800×600 source, 4:3) so both
+                // media boxes land at the same height in this row — same column width × same ratio.
+                <div className="mt-6 w-full aspect-[4/3]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={assetPath(item.image)}
+                    alt={item.title}
+                    className="w-full h-full object-cover object-center"
+                  />
                 </div>
-              </article>
-            ))}
-          </div>
+              )}
+
+              <h3 className="mt-4 text-[32px] font-medium leading-[1.2] tracking-[-0.06em] text-ink">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-[16px] leading-[1.4] tracking-[-0.02em] text-ink">
+                {item.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

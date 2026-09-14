@@ -4,8 +4,8 @@ export const siteConfig = {
   location: "Berlin",
   year: "2026",
   linkedIn: "https://www.linkedin.com/in/steburako/",
-  cv: "https://drive.google.com/file/d/1pUQSow4iRnkBFMZftH-JydCO7FuQLp2J/view?usp=sharing",
   email: "andrew.steburako@pandadoc.com",
 
+  showAboutSection: false,
   showPlaygroundSection: false,
 }

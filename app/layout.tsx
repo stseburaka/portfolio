@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Poppins } from "next/font/google"
+import { Poppins, IBM_Plex_Mono } from "next/font/google"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import "./globals.css"
@@ -8,6 +8,13 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-poppins",
+  display: "swap",
+})
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500"],
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-mono",
   display: "swap",
 })
 
@@ -23,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={`${poppins.variable} ${ibmPlexMono.variable}`}>
       <body className="antialiased font-sans bg-[#e9e9e9] text-ink min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 md:pt-[56px]">{children}</main>

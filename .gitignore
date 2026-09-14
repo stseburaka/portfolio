@@ -42,3 +42,8 @@ next-env.d.ts
 
 # local temp assets (never commit source files from here)
 _Temp/
+
+# local agent configuration
+/.claude/
+/.mcp.json
+/RESEARCH.md

@@ -1,13 +1,14 @@
 import { SectionLabel } from "@/components/ui/SectionLabel"
 import { FeaturedProject } from "@/components/ui/FeaturedProject"
 import { caseStudies } from "@/content/work"
+import { assetPath } from "@/lib/paths"
 
 const visuals: Record<string, React.ReactNode> = {
   "recipient-experience": (
     <div className="relative h-full w-full">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/images/recipient-experience-bg.webp"
+        src={assetPath("/images/recipient-experience-bg.webp")}
         alt=""
         className="absolute inset-0 w-full h-full object-cover"
         loading="lazy"
@@ -21,7 +22,7 @@ const visuals: Record<string, React.ReactNode> = {
           playsInline
           preload="none"
         >
-          <source src="/videos/recipient-experience-ui.mp4" type="video/mp4" />
+          <source src={assetPath("/videos/recipient-experience-ui.mp4")} type="video/mp4" />
         </video>
       </div>
     </div>
@@ -30,7 +31,7 @@ const visuals: Record<string, React.ReactNode> = {
     <div className="relative h-full w-full">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/images/rooms-bg.webp"
+        src={assetPath("/images/rooms-bg.webp")}
         alt=""
         className="absolute inset-0 w-full h-full object-cover"
         loading="lazy"
@@ -44,7 +45,7 @@ const visuals: Record<string, React.ReactNode> = {
           playsInline
           preload="none"
         >
-          <source src="/videos/rooms-ui.mp4" type="video/mp4" />
+          <source src={assetPath("/videos/rooms-ui.mp4")} type="video/mp4" />
         </video>
       </div>
     </div>
@@ -56,7 +57,7 @@ export function SelectedWork() {
     <section className="py-16">
       <SectionLabel withBorder>SELECTED WORK</SectionLabel>
 
-      <div className="mt-12 flex flex-col gap-[84px]">
+      <div className="mt-16 flex flex-col gap-16 md:gap-[160px]">
         {caseStudies.map((study) => (
           <FeaturedProject
             key={study.slug}
@@ -66,8 +67,8 @@ export function SelectedWork() {
             imagePosition={study.imagePosition}
             visual={visuals[study.slug]}
             metrics={study.metrics}
-            ctaText="View case"
-            ctaHref={`/work/${study.slug}`}
+            ctaText="View case study"
+            ctaLocked
           />
         ))}
       </div>
