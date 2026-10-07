@@ -213,7 +213,7 @@ export function PlaygroundFrames({ cell, columns, rows }: PlaygroundFramesProps)
         const isActive = activeKey === stage.key
         const rect = isActive ? rects.activeRects[stage.key] : rects.passiveRects[stage.key]
         const frameWidth = rect.colSpan * cell
-        const maxLabelWidth = frameWidth - labelPadding.split(" ")[1].replace("px", "") as unknown as number
+        const maxLabelWidth = frameWidth - Number.parseFloat(labelPadding.split(" ")[1])
 
         return (
           <div
