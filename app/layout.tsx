@@ -12,7 +12,7 @@ const poppins = Poppins({
 })
 
 const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
   variable: "--font-ibm-plex-mono",
   display: "swap",

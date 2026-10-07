@@ -7,5 +7,9 @@ export const siteConfig = {
   email: "andrew.steburako@pandadoc.com",
 
   showAboutSection: false,
+  showSelectedWorkSection: false,
+  showMoreWorkSection: false,
+  showGetInTouchSection: false,
   showPlaygroundSection: false,
+  showFooterOnHome: false,
 }
