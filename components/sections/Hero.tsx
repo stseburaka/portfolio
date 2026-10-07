@@ -21,7 +21,15 @@ interface FrameDef {
   active: FrameRect
 }
 
-// Positions are % of the composition container (see inset below).
+// All composition geometry uses this fixed reference canvas. Its proportions match
+// the visible frames and logo cluster at the current desktop size, after trimming
+// the old wrapper's unused space. The responsive panel only scales this canvas.
+const REFERENCE_CANVAS = { width: 1000, height: 848 } as const
+const REFERENCE_DETAIL_SCALE = 1.4204
+// Convert X travel back to the old percentage-point scale so inertial rotation stays unchanged.
+const REFERENCE_UNITS_PER_OLD_X_PERCENT = 13.31
+
+// Positions and sizes are pixels in REFERENCE_CANVAS coordinates.
 // Each frame's passive/active pair keeps one anchor corner fixed —
 // the frame grows away from that corner when active.
 const FRAMES: FrameDef[] = [
@@ -29,22 +37,22 @@ const FRAMES: FrameDef[] = [
     key: "build",
     label: "Shape the solution",
     anchor: "br",
-    passive: { left: 40, top: 26, width: 20, height: 26 },
-    active: { left: 33, top: 1, width: 34, height: 60 },
+    passive: { left: 387.78, top: 292.02, width: 266.18, height: 230.08 },
+    active: { left: 294.62, top: 70.79, width: 452.51, height: 530.94 },
   },
   {
     key: "understand",
     label: "Understand the problem",
     anchor: "bl",
-    passive: { left: 14, top: 59, width: 22, height: 21 },
-    active: { left: 14, top: 29, width: 39, height: 51 },
+    passive: { left: 41.74, top: 584.04, width: 292.8, height: 185.83 },
+    active: { left: 41.74, top: 318.57, width: 519.06, height: 451.3 },
   },
   {
     key: "test",
     label: "Ship & learn",
     anchor: "br",
-    passive: { left: 63, top: 6, width: 23, height: 20 },
-    active: { left: 46, top: -7, width: 40, height: 50 },
+    passive: { left: 693.89, top: 115.04, width: 306.11, height: 176.98 },
+    active: { left: 467.63, top: 0, width: 532.37, height: 442.45 },
   },
 ]
 
@@ -108,7 +116,7 @@ const LOGOS: Logo[] = [
 ]
 
 // Uniform layout box (px) for every floating Hero logo, before LOGO_SCALE_BY_STATE is applied.
-const BASE_LOGO_SIZE = 44
+const BASE_LOGO_SIZE = 62.5
 
 // Hand-picked regions the logo cluster gathers around per activeKey (% of the Hero
 // section, same coordinate space as LOGO_LAYOUTS below) — data only, never rendered.
@@ -121,7 +129,7 @@ const ATTRACTION_ZONES: Record<FrameKey, FrameRect> = {
 
 interface LogoPos { x: number; y: number }
 
-// Target position (% of the Hero section) for every logo, per activeKey — this is the
+// Target position in reference-canvas pixels for every logo, per activeKey — this is the
 // top-left corner of each logo's BASE_LOGO_SIZE box; LOGO_SCALE_BY_STATE then scales that
 // box from its own center (transformOrigin: center center). Positions were solved by hand
 // against each state's real scaled radii (BASE_LOGO_SIZE/2 * scale) so that circles
@@ -130,37 +138,37 @@ interface LogoPos { x: number; y: number }
 // near the matching ATTRACTION_ZONE rather than a grid.
 const LOGO_LAYOUTS: Record<FrameKey, Record<string, LogoPos>> = {
   understand: {
-    amplitude: { x: 16.87, y: 79.72 },
-    hex:       { x: 27.33, y: 79.72 },
-    claude:    { x: 36.01, y: 79.72 },
-    gemini:    { x: 14.44, y: 42.90 },
-    notion:    { x: 12.00, y: 58.33 },
-    codex:     { x: 20.93, y: 38.27 },
-    figma:     { x: 26.60, y: 39.04 },
-    cursor:    { x: 32.28, y: 39.81 },
-    copilot:   { x: 41.60, y: 83.02 },
+    amplitude: { x: 79.94, y: 705.45 },
+    hex:       { x: 219.15, y: 705.45 },
+    claude:    { x: 334.68, y: 705.45 },
+    gemini:    { x: 47.6, y: 379.63 },
+    notion:    { x: 15.12, y: 516.17 },
+    codex:     { x: 133.97, y: 338.65 },
+    figma:     { x: 209.44, y: 345.47 },
+    cursor:    { x: 285.03, y: 352.28 },
+    copilot:   { x: 409.07, y: 734.65 },
   },
   build: {
-    figma:     { x: 43.63, y: 36.73 },
-    claude:    { x: 52.15, y: 23.61 },
-    gemini:    { x: 46.07, y: 56.79 },
-    cursor:    { x: 34.71, y: 27.47 },
-    codex:     { x: 36.34, y: 49.07 },
-    copilot:   { x: 45.25, y: 18.21 },
-    amplitude: { x: 30.66, y: 39.81 },
-    hex:       { x: 40.39, y: 53.70 },
-    notion:    { x: 59.05, y: 29.01 },
+    figma:     { x: 436.09, y: 325.03 },
+    claude:    { x: 549.49, y: 208.93 },
+    gemini:    { x: 468.57, y: 502.54 },
+    cursor:    { x: 317.37, y: 243.08 },
+    codex:     { x: 339.07, y: 434.22 },
+    copilot:   { x: 457.65, y: 161.14 },
+    amplitude: { x: 263.47, y: 352.28 },
+    hex:       { x: 392.97, y: 475.2 },
+    notion:    { x: 641.32, y: 256.71 },
   },
   test: {
-    cursor:    { x: 56.61, y: 30.56 },
-    codex:     { x: 63.91, y: 15.89 },
-    amplitude: { x: 59.69, y: 48.30 },
-    figma:     { x: 47.69, y: 24.38 },
-    claude:    { x: 50.12, y: 45.99 },
-    hex:       { x: 66.75, y: 29.78 },
-    gemini:    { x: 43.63, y: 36.73 },
-    notion:    { x: 46.88, y: 55.25 },
-    copilot:   { x: 75.26, y: 45.99 },
+    cursor:    { x: 608.84, y: 270.43 },
+    codex:     { x: 706, y: 140.61 },
+    amplitude: { x: 649.84, y: 427.41 },
+    figma:     { x: 490.13, y: 215.74 },
+    claude:    { x: 522.47, y: 406.97 },
+    hex:       { x: 743.8, y: 263.53 },
+    gemini:    { x: 436.09, y: 325.03 },
+    notion:    { x: 479.35, y: 488.91 },
+    copilot:   { x: 857.06, y: 406.97 },
   },
 }
 
@@ -224,13 +232,16 @@ const LOGO_SCALE_BY_STATE: Record<FrameKey, Record<string, number>> = {
 
 const TARGET_CELL = 104
 const GRID_LINE = "rgba(0,0,0,0.08)"
+const ABOUT_COLUMN_WIDTH = "30%"
 // Matches the site background (body bg-[#e9e9e9] in app/layout.tsx) — frames need an
 // opaque fill in this exact color so overlapping frames occlude what's beneath them.
 const SITE_BG = "#e9e9e9"
+const SHOW_HERO_STATEMENT = false
 
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const [gridCell, setGridCell] = useState({ w: TARGET_CELL, h: TARGET_CELL })
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const [grid, setGrid] = useState({ cell: TARGET_CELL, columns: 1, rows: 1 })
+  const [compositionScale, setCompositionScale] = useState(0)
   const [rm, setRm] = useState(false)
   const [seqIdx, setSeqIdx] = useState(0)
   const [hoverKey, setHoverKey] = useState<FrameKey | null>(null)
@@ -263,15 +274,48 @@ export function Hero() {
     return () => mq.removeEventListener("change", h)
   }, [])
 
-  // Background grid cell size
+  // Grid dimensions follow the real canvas; the composition gets a separate uniform fit.
   useEffect(() => {
-    const el = sectionRef.current
+    const el = canvasRef.current
     if (!el) return
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect
-      const cols = Math.round(width / TARGET_CELL)
-      const rows = Math.round(height / TARGET_CELL)
-      if (cols > 0 && rows > 0) setGridCell({ w: width / cols, h: height / rows })
+      if (width <= 0 || height <= 0) return
+      const candidates: Array<{
+        cell: number
+        columns: number
+        rows: number
+        score: number
+      }> = []
+      const addCandidate = (cell: number, columns: number, rows: number) => {
+        if (columns < 1 || rows < 1 || cell < TARGET_CELL * 0.75 || cell > TARGET_CELL * 1.25) return
+        const unused = 1 - (columns * rows * cell * cell) / (width * height)
+        const sizeDelta = Math.abs(cell - TARGET_CELL) / TARGET_CELL
+        candidates.push({ cell, columns, rows, score: unused + sizeDelta * 0.35 })
+      }
+
+      const nearColumns = Math.round(width / TARGET_CELL)
+      for (let columns = Math.max(1, nearColumns - 2); columns <= nearColumns + 2; columns++) {
+        const cell = width / columns
+        addCandidate(cell, columns, Math.floor(height / cell))
+      }
+
+      const nearRows = Math.round(height / TARGET_CELL)
+      for (let rows = Math.max(1, nearRows - 2); rows <= nearRows + 2; rows++) {
+        const cell = height / rows
+        addCandidate(cell, Math.floor(width / cell), rows)
+      }
+
+      const best = candidates.sort((a, b) => a.score - b.score)[0]
+      if (best) setGrid({ cell: best.cell, columns: best.columns, rows: best.rows })
+
+      const safeWidth = width - 48
+      const safeHeight = height - 48
+      if (safeWidth <= 0 || safeHeight <= 0) return
+      setCompositionScale(Math.min(
+        safeWidth / REFERENCE_CANVAS.width,
+        safeHeight / REFERENCE_CANVAS.height,
+      ))
     })
     ro.observe(el)
     return () => ro.disconnect()
@@ -309,7 +353,7 @@ export function Hero() {
     const nextAngles: Record<string, number> = {}
     LOGOS.forEach(logo => {
       const nextPos = LOGO_LAYOUTS[nextKey][logo.key]
-      const deltaX = nextPos.x - prevLogoPosRef.current[logo.key].x
+      const deltaX = (nextPos.x - prevLogoPosRef.current[logo.key].x) / REFERENCE_UNITS_PER_OLD_X_PERCENT
       const dir = Math.sign(deltaX)
       const mag = dir === 0 ? 0 : Math.min(LOGO_FLIGHT_ANGLE_MAX, LOGO_FLIGHT_ANGLE_MIN + Math.abs(deltaX) / 5)
       nextAngles[logo.key] = dir * mag
@@ -347,6 +391,7 @@ export function Hero() {
   }
 
   const activeKey = hoverKey ?? SEQUENCE[seqIdx]
+  const refUnit = (value: number) => value * compositionScale
   const ease = `cubic-bezier(0.37, 0, 0.63, 1)`
   const geomT = rm ? "none" : `left ${FRAME_ANIM_MS}ms ${ease}, top ${FRAME_ANIM_MS}ms ${ease}, width ${FRAME_ANIM_MS}ms ${ease}, height ${FRAME_ANIM_MS}ms ${ease}`
   const labelT = rm ? "none" : `background-color ${FRAME_ANIM_MS}ms ${ease}, color ${FRAME_ANIM_MS}ms ${ease}`
@@ -376,32 +421,62 @@ export function Hero() {
 
   return (
     <section
-      ref={sectionRef}
-      className="relative overflow-hidden mt-4 min-h-[80svh] md:min-h-0 md:h-[calc(100dvh-72px)]"
-      style={{ borderRight: `1px solid ${GRID_LINE}`, borderBottom: `1px solid ${GRID_LINE}` }}
+      className="relative min-h-[80svh] md:min-h-0 md:h-[calc(100dvh-56px)] md:grid md:grid-cols-[minmax(220px,var(--about-column-width))_1px_minmax(0,1fr)]"
+      style={{
+        "--about-column-width": ABOUT_COLUMN_WIDTH,
+        borderRight: `1px solid ${GRID_LINE}`,
+        borderBottom: `1px solid ${GRID_LINE}`,
+      } as React.CSSProperties}
     >
-
-      {/* Layer 1 — static background grid */}
+      {/* Desktop About column */}
       <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: [
-            `linear-gradient(to right, ${GRID_LINE} 1px, transparent 1px)`,
-            `linear-gradient(to bottom, ${GRID_LINE} 1px, transparent 1px)`,
-          ].join(", "),
-          backgroundSize: `${gridCell.w}px ${gridCell.h}px`,
-          zIndex: 1,
-        }}
-      />
-
-      {/* Layer 2 — three overlapping floating frames (desktop only) */}
-      <div
-        aria-label="Design process"
-        className="hidden md:block absolute"
-        style={{ inset: "12% 4% 14% 10%", zIndex: 2 }}
-        onMouseLeave={handleCompositionLeave}
+        className="hidden md:flex min-w-0 flex-col justify-center gap-5 px-6 lg:px-8"
+        style={{ backgroundColor: SITE_BG, zIndex: 1 }}
       >
+        <div className="space-y-1">
+          <h1 className="text-[30px] lg:text-[34px] font-medium leading-[1.1] tracking-[-0.05em] text-ink text-balance">
+            Andrei Stseburaka
+          </h1>
+          <p className="text-[16px] leading-[1.4] tracking-[-0.02em] text-ink-2">
+            Senior Product Designer
+          </p>
+        </div>
+        <p className="max-w-[360px] text-[18px] leading-[1.45] tracking-[-0.025em] text-ink">
+          11+ years designing B2B software across fintech, SaaS, and AI.
+          <br />
+          Red Dot Award winner.
+        </p>
+      </div>
+
+      <div aria-hidden="true" className="hidden md:block" style={{ backgroundColor: GRID_LINE }} />
+
+      {/* Hero canvas: grid fills this area; the composition stays 24px inside it. */}
+      <div ref={canvasRef} className="hidden md:block relative min-w-0 bg-[#e9e9e9]">
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              width: grid.columns * grid.cell,
+              height: grid.rows * grid.cell,
+              backgroundImage: [
+                `linear-gradient(to right, ${GRID_LINE} 1px, transparent 1px)`,
+                `linear-gradient(to bottom, ${GRID_LINE} 1px, transparent 1px)`,
+              ].join(", "),
+              backgroundSize: `${grid.cell}px ${grid.cell}px`,
+            }}
+          />
+        </div>
+
+        <div className="absolute inset-6" onMouseLeave={handleCompositionLeave}>
+          <div
+            className="absolute left-1/2 top-1/2"
+            style={{
+              width: refUnit(REFERENCE_CANVAS.width),
+              height: refUnit(REFERENCE_CANVAS.height),
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+        <div aria-label="Design process" className="absolute inset-0">
         {FRAMES.map((frame) => {
           const isActive = activeKey === frame.key
           const rect = isActive ? frame.active : frame.passive
@@ -414,17 +489,17 @@ export function Hero() {
               onMouseEnter={() => handleFrameEnter(frame.key)}
               style={{
                 position: "absolute",
-                left: `${rect.left}%`,
-                top: `${rect.top}%`,
-                width: `${rect.width}%`,
-                height: `${rect.height}%`,
+                left: refUnit(rect.left),
+                top: refUnit(rect.top),
+                width: refUnit(rect.width),
+                height: refUnit(rect.height),
                 boxSizing: "border-box",
                 overflow: "hidden",
                 backgroundColor: SITE_BG,
-                border: isActive ? "1px solid #000" : "1px solid transparent",
+                border: isActive ? `${refUnit(REFERENCE_DETAIL_SCALE)}px solid #000` : `${refUnit(REFERENCE_DETAIL_SCALE)}px solid transparent`,
                 backgroundImage: isActive ? "none" : DASH_BG,
                 backgroundPosition: "top, right, bottom, left",
-                backgroundSize: "4px 1px, 1px 4px, 4px 1px, 1px 4px",
+                backgroundSize: `${refUnit(4 * REFERENCE_DETAIL_SCALE)}px ${refUnit(REFERENCE_DETAIL_SCALE)}px, ${refUnit(REFERENCE_DETAIL_SCALE)}px ${refUnit(4 * REFERENCE_DETAIL_SCALE)}px, ${refUnit(4 * REFERENCE_DETAIL_SCALE)}px ${refUnit(REFERENCE_DETAIL_SCALE)}px, ${refUnit(REFERENCE_DETAIL_SCALE)}px ${refUnit(4 * REFERENCE_DETAIL_SCALE)}px`,
                 backgroundRepeat: "repeat-x, repeat-y, repeat-x, repeat-y",
                 zIndex: stackZ,
                 transition: geomT,
@@ -465,10 +540,10 @@ export function Hero() {
                 <div
                   style={{
                     fontFamily: "var(--font-ibm-plex-mono, monospace)",
-                    fontSize: 11,
+                    fontSize: refUnit(11 * REFERENCE_DETAIL_SCALE),
                     fontWeight: 500,
                     letterSpacing: "0.04em",
-                    padding: "3px 7px",
+                    padding: `${refUnit(3 * REFERENCE_DETAIL_SCALE)}px ${refUnit(7 * REFERENCE_DETAIL_SCALE)}px`,
                     background: isActive ? "#000" : "transparent",
                     color: isActive ? "#fff" : "#000",
                     whiteSpace: "nowrap",
@@ -485,10 +560,10 @@ export function Hero() {
                     key={text}
                     style={{
                       fontFamily: "var(--font-ibm-plex-mono, monospace)",
-                      fontSize: 11,
+                      fontSize: refUnit(11 * REFERENCE_DETAIL_SCALE),
                       fontWeight: 500,
                       letterSpacing: "0.04em",
-                      padding: "3px 7px",
+                      padding: `${refUnit(3 * REFERENCE_DETAIL_SCALE)}px ${refUnit(7 * REFERENCE_DETAIL_SCALE)}px`,
                       background: "#000",
                       color: "#fff",
                       whiteSpace: "nowrap",
@@ -506,64 +581,22 @@ export function Hero() {
             </div>
           )
         })}
-      </div>
+        </div>
 
-      {/* Layer 3 — text */}
-      <p
-        className="hidden md:block absolute text-[20px] leading-[1.4] tracking-[-0.02em] text-ink"
-        style={{ top: 16, left: 16, maxWidth: 340, zIndex: 3 }}
-      >
-        11+ years designing B2B software across fintech, SaaS, and AI
-        products. Red Dot Award winner.
-      </p>
-
-      <h1
-        className="hidden md:block absolute text-[72px] font-medium leading-none tracking-[-0.06em] text-ink text-right text-balance"
-        style={{ bottom: 16, right: 16, maxWidth: 720, zIndex: 3 }}
-      >
-        I design and ship complex products
-      </h1>
-
-      {/* Scroll cue — desktop only, bottom-left of Hero grid */}
-      <div
-        className="hidden md:flex absolute items-center gap-1.5 select-none"
-        style={{ left: 16, bottom: 16, zIndex: 3 }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--font-ibm-plex-mono, monospace)",
-            fontSize: 11,
-            fontWeight: 500,
-            letterSpacing: "0.04em",
-            color: "#000",
-          }}
-        >
-          SCROLL TO EXPLORE
-        </span>
-        <span
-          style={{
-            position: "relative",
-            display: "inline-block",
-            width: 16,
-            height: 28,
-            overflow: "hidden",
-          }}
-        >
-          <img
-            src={assetPath("/icons/arrow-down.svg")}
-            alt=""
-            width={16}
-            height={16}
-            className={rm ? undefined : "hero-scroll-arrow"}
+        {SHOW_HERO_STATEMENT && (
+          <h2
+            className="absolute text-[72px] font-medium leading-none tracking-[-0.06em] text-ink text-right text-balance"
             style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              ...(rm ? { transform: "translateY(6px)" } : {}),
+              maxWidth: refUnit(720 * REFERENCE_DETAIL_SCALE),
+              right: refUnit(16 * REFERENCE_DETAIL_SCALE),
+              bottom: refUnit(16 * REFERENCE_DETAIL_SCALE),
+              fontSize: refUnit(72 * REFERENCE_DETAIL_SCALE),
+              zIndex: 3,
             }}
-          />
-        </span>
-      </div>
+          >
+            I design and ship complex products
+          </h2>
+        )}
 
       {/* Layer 4 — floating tool logos (desktop only). Each logo's left/top targets
           LOGO_LAYOUTS[activeKey] and transitions there directly per-logo (see LOGO_MOTION)
@@ -578,7 +611,7 @@ export function Hero() {
           as their own CSS properties (not the `transform` shorthand) so rotation can run on
           its own clock, independent of left/top/scale's timing. The old idle drift
           (.hero-logo) is intentionally not applied so it can't fight this. */}
-      {LOGOS.map((logo) => {
+        {LOGOS.map((logo) => {
         const pos = LOGO_LAYOUTS[activeKey][logo.key]
         const scale = LOGO_SCALE_BY_STATE[activeKey][logo.key]
         const phase = rm ? "settled" : rotationPhase[logo.key]
@@ -593,10 +626,10 @@ export function Hero() {
             height={BASE_LOGO_SIZE}
             className="hidden md:block absolute pointer-events-none"
             style={{
-              left: `${pos.x}%`,
-              top: `${pos.y}%`,
-              width: BASE_LOGO_SIZE,
-              height: BASE_LOGO_SIZE,
+              left: refUnit(pos.x),
+              top: refUnit(pos.y),
+              width: refUnit(BASE_LOGO_SIZE),
+              height: refUnit(BASE_LOGO_SIZE),
               objectFit: "contain",
               zIndex: 4,
               rotate: `${angle}deg`,
@@ -606,17 +639,26 @@ export function Hero() {
             } as React.CSSProperties}
           />
         )
-      })}
+        })}
+          </div>
+      </div>
+      </div>
 
       {/* Mobile layout — simple stack */}
-      <div className="md:hidden flex flex-col gap-8 py-12 relative" style={{ zIndex: 10 }}>
-        <p className="text-[20px] leading-[1.4] tracking-[-0.02em] text-ink max-w-[423px]">
-          11+ years designing B2B software across fintech, SaaS, and AI
-          products. Red Dot Award winner.
+      <div className="md:hidden flex flex-col gap-5 px-5 py-10 relative" style={{ zIndex: 10 }}>
+        <div className="space-y-1">
+          <h1 className="text-[32px] font-medium leading-[1.1] tracking-[-0.05em] text-ink">
+            Andrei Stseburaka
+          </h1>
+          <p className="text-[16px] leading-[1.4] tracking-[-0.02em] text-ink-2">
+            Senior Product Designer
+          </p>
+        </div>
+        <p className="max-w-[423px] text-[18px] leading-[1.45] tracking-[-0.025em] text-ink">
+          11+ years designing B2B software across fintech, SaaS, and AI.
+          <br />
+          Red Dot Award winner.
         </p>
-        <h1 className="text-[56px] font-medium leading-none tracking-[-0.06em] text-ink text-right">
-          I design and ship complex products
-        </h1>
       </div>
     </section>
   )

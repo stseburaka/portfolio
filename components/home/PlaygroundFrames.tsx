@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { assetPath } from "@/lib/paths"
 
 type StageKey = "understand" | "shape" | "ship"
@@ -49,11 +49,7 @@ const STAGES: Stage[] = [
   },
 ]
 
-// Keep the old idle rhythm: Shape → Understand → Shape → Ship.
-const SEQUENCE: StageKey[] = ["shape", "understand", "shape", "ship"]
 const FRAME_ANIM_MS = 800
-const FRAME_HOLD_MS = 1800
-const LEAVE_HOLD_MS = 1200
 const SUB_LABEL_STAGGER_MS = 70
 const SUB_LABEL_ANIM_MS = 220
 const EASE = "cubic-bezier(0.37, 0, 0.63, 1)"
@@ -74,129 +70,88 @@ const subscribeToReducedMotion = (callback: () => void) => {
 const getReducedMotionSnapshot = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
 function getStageRects(columns: number, rows: number) {
-  if (columns < 4 || rows < 4) return null
+  if (columns < 6 || rows < 6) return null
 
-  const passiveColSpan = Math.min(3, Math.max(2, Math.floor(columns / 3)))
-  const passiveRowSpan = Math.min(2, rows - 1)
-  const activeRowSpan = Math.min(4, rows - 2)
-  const middlePassiveColumn = Math.floor((columns - passiveColSpan) / 2)
-  const middlePassiveRow = Math.floor((rows - passiveRowSpan) / 2)
-  const middleActiveColumn = Math.floor((columns - Math.min(columns - 2, activeRowSpan * 1.05)) / 2)
-  const middleActiveRow = Math.floor((rows - activeRowSpan) / 2)
+  const compositionColumns = columns - 2
+  const compositionRows = rows - 2
+
+  const passiveColSpan = Math.min(3, Math.max(2, Math.floor(compositionColumns / 3)))
+  const passiveRowSpan = Math.min(2, compositionRows - 1)
+  const activeRowSpan = Math.min(4, compositionRows - 2)
+  const middlePassiveColumn = Math.floor((compositionColumns - passiveColSpan) / 2)
+  const middlePassiveRow = Math.floor((compositionRows - passiveRowSpan) / 2)
+  const middleActiveColumn = Math.floor((compositionColumns - Math.min(compositionColumns - 2, activeRowSpan * 1.05)) / 2)
+  const middleActiveRow = Math.floor((compositionRows - activeRowSpan) / 2)
 
   const passiveRects: Record<StageKey, GridRect> = {
-    understand: { column: 0, row: rows - passiveRowSpan, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
-    shape: { column: middlePassiveColumn, row: middlePassiveRow, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
-    ship: { column: columns - passiveColSpan, row: 0, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
+    understand: { column: 1, row: compositionRows - passiveRowSpan + 1, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
+    shape: { column: middlePassiveColumn + 1, row: middlePassiveRow + 1, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
+    ship: { column: compositionColumns - passiveColSpan + 1, row: 1, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
   }
 
   const activeRects = Object.fromEntries(STAGES.map((stage) => {
-    const baseColSpan = Math.min(columns - 2, Math.max(2, Math.round(activeRowSpan * stage.aspect)))
-    const colSpan = stage.key === "shape" ? Math.min(columns, baseColSpan + 2) : baseColSpan
+    const baseColSpan = Math.min(compositionColumns - 2, Math.max(2, Math.round(activeRowSpan * stage.aspect)))
+    const colSpan = stage.key === "shape" ? Math.min(compositionColumns, baseColSpan + 2) : baseColSpan
     const row = stage.key === "understand"
-      ? rows - activeRowSpan
+      ? compositionRows - activeRowSpan
       : stage.key === "ship"
         ? 0
         : middleActiveRow
     const column = stage.key === "understand"
       ? 0
       : stage.key === "ship"
-        ? columns - colSpan
-        : Math.floor((columns - colSpan) / 2)
+        ? compositionColumns - colSpan
+        : Math.floor((compositionColumns - colSpan) / 2)
 
-    return [stage.key, { column, row, colSpan, rowSpan: activeRowSpan }]
-  })) as Record<StageKey, GridRect>
+    if (stage.key === "shape") {
+      const left = Math.max(0, column - 2)
+      const right = Math.min(compositionColumns, column + colSpan + 2)
+      const bottom = Math.min(compositionRows, middleActiveRow + activeRowSpan + 1)
 
-  return { passiveRects, activeRects }
-}
+      return [stage.key, {
+        column: left + 2,
+        row: middleActiveRow + 1,
+        colSpan: right - left - 2,
+        rowSpan: bottom - middleActiveRow,
+      }]
+    }
 
-function getMobileStageRects(columns: number, rows: number) {
-  if (columns < 4 || rows < 4) return null
-
-  const passiveColSpan = Math.min(3, Math.max(2, Math.floor(columns / 3)))
-  const passiveRowSpan = 1
-  const activeRowSpan = Math.min(4, rows - 2)
-  const middlePassiveColumn = Math.floor((columns - passiveColSpan) / 2)
-  const middlePassiveRow = Math.floor((rows - passiveRowSpan) / 2)
-  const middleActiveRow = Math.floor((rows - activeRowSpan) / 2)
-
-  const passiveRects: Record<StageKey, GridRect> = {
-    ship: { column: columns - passiveColSpan, row: 0, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
-    shape: { column: middlePassiveColumn, row: middlePassiveRow, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
-    understand: { column: 0, row: rows - passiveRowSpan, colSpan: passiveColSpan, rowSpan: passiveRowSpan },
-  }
-
-  const activeRects = Object.fromEntries(STAGES.map((stage) => {
-    const baseColSpan = Math.min(columns - 2, Math.max(2, Math.round(activeRowSpan * stage.aspect)))
-    const colSpan = stage.key === "shape" ? Math.min(columns, baseColSpan + 2) : baseColSpan
-    const row = stage.key === "understand"
-      ? rows - activeRowSpan
-      : stage.key === "ship"
-        ? 0
-        : middleActiveRow
-    const column = stage.key === "understand"
-      ? 0
-      : stage.key === "ship"
-        ? columns - colSpan
-        : Math.floor((columns - colSpan) / 2)
-
-    return [stage.key, { column, row, colSpan, rowSpan: activeRowSpan }]
+    return [stage.key, { column: column + 1, row: row + 1, colSpan, rowSpan: activeRowSpan }]
   })) as Record<StageKey, GridRect>
 
   return { passiveRects, activeRects }
 }
 
 interface PlaygroundFramesProps {
-  cell: number
+  cellWidth: number
+  cellHeight: number
   columns: number
   rows: number
 }
 
-export function PlaygroundFrames({ cell, columns, rows }: PlaygroundFramesProps) {
-  const [sequenceIndex, setSequenceIndex] = useState(0)
+export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: PlaygroundFramesProps) {
   const [hoverKey, setHoverKey] = useState<StageKey | null>(null)
-  const leaveTimerRef = useRef<number | null>(null)
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
     getReducedMotionSnapshot,
     () => false,
   )
 
-  useEffect(() => {
-    if (reducedMotion || hoverKey !== null) return
-    const timer = window.setInterval(() => {
-      setSequenceIndex((index) => (index + 1) % SEQUENCE.length)
-    }, FRAME_HOLD_MS)
-    return () => window.clearInterval(timer)
-  }, [hoverKey, reducedMotion])
-
-  useEffect(() => () => {
-    if (leaveTimerRef.current !== null) window.clearTimeout(leaveTimerRef.current)
-  }, [])
-
-  const activeKey = hoverKey ?? SEQUENCE[sequenceIndex]
-  const rects = columns <= 5
-    ? getMobileStageRects(columns, rows)
-    : getStageRects(columns, rows)
+  const activeKey = hoverKey ?? "shape"
+  const rects = getStageRects(columns, rows)
   if (!rects) return null
 
   const handleFrameEnter = (key: StageKey) => {
-    if (leaveTimerRef.current !== null) {
-      window.clearTimeout(leaveTimerRef.current)
-      leaveTimerRef.current = null
-    }
     setHoverKey(key)
   }
 
   const handleCompositionLeave = () => {
-    leaveTimerRef.current = window.setTimeout(() => {
-      setHoverKey(null)
-      leaveTimerRef.current = null
-    }, LEAVE_HOLD_MS)
+    setHoverKey(null)
   }
 
-  const labelFontSize = Math.max(9, Math.min(14, cell * 0.125))
-  const labelPadding = `${Math.max(2, cell * 0.03)}px ${Math.max(5, cell * 0.07)}px`
+  const labelFontSize = Math.max(9, Math.min(14, cellHeight * 0.125))
+  const horizontalLabelPadding = Math.max(5, cellWidth * 0.07)
+  const labelPadding = `${Math.max(2, cellHeight * 0.03)}px ${horizontalLabelPadding}px`
   const geometryTransition = reducedMotion
     ? "none"
     : `left ${FRAME_ANIM_MS}ms ${EASE}, top ${FRAME_ANIM_MS}ms ${EASE}, width ${FRAME_ANIM_MS}ms ${EASE}, height ${FRAME_ANIM_MS}ms ${EASE}`
@@ -212,19 +167,20 @@ export function PlaygroundFrames({ cell, columns, rows }: PlaygroundFramesProps)
       {STAGES.map((stage) => {
         const isActive = activeKey === stage.key
         const rect = isActive ? rects.activeRects[stage.key] : rects.passiveRects[stage.key]
-        const frameWidth = rect.colSpan * cell
-        const maxLabelWidth = frameWidth - Number.parseFloat(labelPadding.split(" ")[1])
+        const frameWidth = rect.colSpan * cellWidth
+        const maxLabelWidth = frameWidth - horizontalLabelPadding
 
         return (
           <div
             key={stage.key}
             onMouseEnter={() => handleFrameEnter(stage.key)}
+            onMouseLeave={() => setHoverKey((current) => current === stage.key ? null : current)}
             style={{
               position: "absolute",
-              left: rect.column * cell,
-              top: rect.row * cell,
+              left: rect.column * cellWidth,
+              top: rect.row * cellHeight,
               width: frameWidth,
-              height: rect.rowSpan * cell,
+              height: rect.rowSpan * cellHeight,
               boxSizing: "border-box",
               overflow: "hidden",
               backgroundColor: SITE_BG,

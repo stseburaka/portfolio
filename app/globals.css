@@ -60,12 +60,8 @@ body:has(.portfolio-home) > main {
 }
 
 .home-logo .logo-a,
-.home-logo .logo-andrei {
+.home-logo .logo-word {
   font-size: 32px;
-}
-
-.home-logo .logo-andrei {
-  margin-left: var(--space);
 }
 
 .home-about,
@@ -142,71 +138,123 @@ body:has(.portfolio-home) > main {
   }
 }
 
-/* Logo A. → Andrei. expand animation (hover-capable devices only) */
+/* Logo reveal uses clipped copies of one native text run to preserve font shaping. */
+.logo-link {
+  width: max-content;
+  max-width: 56px;
+  overflow: hidden;
+  padding-inline: 13px 19px;
+  justify-content: flex-start;
+  interpolate-size: allow-keywords;
+  transition: max-width 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-/* Non-hover / touch: hide Andrei. from layout entirely */
-.logo-andrei {
-  display: none;
+.logo-word {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-kerning: normal;
+}
+
+.logo-native-run {
+  white-space: nowrap;
+  line-height: inherit;
+}
+
+.logo-reference {
+  position: relative;
+  display: block;
+  visibility: hidden;
+}
+
+.logo-short-reference {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+}
+
+.logo-fallback,
+.logo-prefix,
+.logo-letter,
+.logo-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+}
+
+.logo-fallback {
+  visibility: visible;
+}
+
+.logo-measured .logo-fallback {
+  visibility: hidden;
+}
+
+.logo-prefix,
+.logo-letter,
+.logo-dot {
+  width: 100%;
+  height: 100%;
+  clip-path: inset(0 calc(100% - var(--glyph-right)) 0 var(--glyph-left, 0px));
+}
+
+.logo-letter {
+  opacity: 0;
+  transform: translateX(2.5px);
+  transition:
+    opacity 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 100ms;
+}
+
+.logo-letter-1 { transition-delay: 75ms; }
+.logo-letter-2 { transition-delay: 50ms; }
+.logo-letter-3 { transition-delay: 25ms; }
+.logo-letter-4 { transition-delay: 0ms; }
+
+.logo-dot {
+  transform: translateX(var(--dot-offset));
+  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  /* Container clips "Andrei." by default, expands on hover */
-  .logo-link {
-    overflow: hidden;
-    max-width: 72px; /* approx width of "A." + px-4 padding; fine-tune ±4px if needed */
-    transition: max-width 300ms ease-in-out;
-  }
   .logo-link:hover {
-    max-width: 300px; /* generous ceiling; actual content ~162px */
+    max-width: max-content;
   }
 
-  /* "Andrei." back in flow — drives natural container width */
-  .logo-andrei {
-    display: block;
-    opacity: 0;
-    transition: opacity 150ms ease-in-out; /* leave: fade out fast */
-  }
-  .logo-link:hover .logo-andrei {
+  .logo-link:hover .logo-letter {
     opacity: 1;
-    transition: opacity 200ms ease-in-out 100ms; /* enter: fade in after A. starts leaving */
+    transform: translateX(0);
+    transition:
+      opacity 410ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 410ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* "A." becomes absolute overlay over "Andrei." */
-  .logo-a {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    padding-left: 1rem;  /* match link's px-4 */
-    padding-right: 1rem;
-    opacity: 1;
-    transition: opacity 200ms ease-in-out 100ms; /* leave: fade in after Andrei. starts leaving */
+  .logo-link:hover .logo-letter-0 { transition-delay: 0ms; }
+  .logo-link:hover .logo-letter-1 { transition-delay: 35ms; }
+  .logo-link:hover .logo-letter-2 { transition-delay: 70ms; }
+  .logo-link:hover .logo-letter-3 { transition-delay: 105ms; }
+  .logo-link:hover .logo-letter-4 { transition-delay: 140ms; }
+
+  .logo-link:hover .logo-dot {
+    transform: translateX(0);
+    transition-duration: 550ms;
   }
 
-  .portfolio-home .logo-link {
-    width: 300px;
-    max-width: 56px;
-  }
-
-  .portfolio-home .logo-link .logo-a {
-    padding-inline: 0;
-    justify-content: center;
-  }
-
-  .portfolio-home .logo-link:hover {
-    max-width: 300px;
-  }
-  .logo-link:hover .logo-a {
-    opacity: 0;
-    transition: opacity 150ms ease-in-out; /* enter: fade out fast */
+  .logo-link:hover {
+    transition-duration: 550ms;
   }
 }
 
-/* Reduced motion: instant swap, no movement */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .logo-link,
-  .logo-a,
-  .logo-andrei {
+  .logo-letter,
+  .logo-dot {
     transition: none !important;
   }
 }
