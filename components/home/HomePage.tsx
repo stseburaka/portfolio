@@ -5,6 +5,7 @@ import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import { siteConfig } from "@/content/config"
 import { PlaygroundFrames } from "@/components/home/PlaygroundFrames"
+import { StarField } from "@/components/home/StarField"
 
 const GRID_LINE = "rgba(0, 0, 0, 0.08)"
 const PLAYGROUND_GRID = { columns: 13, rows: 9 } as const
@@ -193,6 +194,9 @@ export function HomePage() {
               strokeWidth="1"
             />
           </svg>
+          {playgroundSize.width > 0 && playgroundSize.height > 0 && (
+            <StarField width={playgroundSize.width} height={playgroundSize.height} />
+          )}
           {playgroundSize.width > 0 && playgroundSize.height > 0 && (
             <PlaygroundFrames
               cellWidth={cellWidth}
