@@ -29,6 +29,7 @@ body:has(.portfolio-home) > main {
 
 .portfolio-home {
   --home-column-ratio: 25fr 75fr;
+  --playground-grid-line: rgba(0, 0, 0, 0.08);
   display: grid;
   grid-template-columns: var(--home-column-ratio);
   gap: var(--space);
@@ -40,10 +41,76 @@ body:has(.portfolio-home) > main {
 
 .home-info {
   display: flex;
+  min-height: 0;
   min-width: 0;
+  flex-direction: column;
+  gap: var(--space);
+  font-family: var(--font-ibm-plex-mono), ui-monospace, monospace;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.home-info-panel {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space);
+  border: 1px solid var(--playground-grid-line);
+}
+
+.home-info-copy {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space);
+}
+
+.home-cats-panel {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 0 0 calc(var(--playground-row-height) * 4);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space);
+  border: 1px solid var(--playground-grid-line);
+}
+
+.ascii-cats-stage {
+  position: absolute;
+  inset: var(--space);
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  place-items: center;
+}
+
+.ascii-cats-measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.ascii-cats,
+.ascii-cats-measure pre {
+  display: block;
+  width: max-content;
+  height: max-content;
+  margin: 0;
+  overflow: visible;
+  color: var(--color-ink);
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: pre;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
 }
 
 .home-logo {
@@ -67,7 +134,7 @@ body:has(.portfolio-home) > main {
 .home-about,
 .home-link {
   margin: 0;
-  font-family: var(--font-ibm-plex-mono), ui-monospace, monospace;
+  font-family: inherit;
   font-size: 18px;
   font-weight: 400;
   line-height: 1.4;
@@ -82,7 +149,7 @@ body:has(.portfolio-home) > main {
 
 .home-about,
 .home-link {
-  font-size: 16px;
+  font-size: inherit;
 }
 
 .home-link {
@@ -116,6 +183,22 @@ body:has(.portfolio-home) > main {
 }
 
 @media (max-width: 767px) {
+  .ascii-cats-stage {
+    display: none;
+  }
+
+  .home-info-panel {
+    display: contents;
+  }
+
+  .home-info-copy {
+    display: contents;
+  }
+
+  .home-cats-panel {
+    display: none;
+  }
+
   .portfolio-home {
     grid-template-columns: minmax(0, 1fr);
     height: auto;
@@ -195,6 +278,15 @@ body:has(.portfolio-home) > main {
   visibility: hidden;
 }
 
+@keyframes logo-cursor-blink {
+  0% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.logo-cursor {
+  animation: logo-cursor-blink 1s steps(1, end) infinite;
+}
+
 .logo-prefix,
 .logo-letter,
 .logo-dot {
@@ -246,6 +338,11 @@ body:has(.portfolio-home) > main {
     transition-duration: 550ms;
   }
 
+  .logo-link:hover .logo-cursor {
+    animation: none;
+    opacity: 1;
+  }
+
   .logo-link:hover {
     transition-duration: 550ms;
   }
@@ -256,6 +353,11 @@ body:has(.portfolio-home) > main {
   .logo-letter,
   .logo-dot {
     transition: none !important;
+  }
+
+  .logo-cursor {
+    animation: none !important;
+    opacity: 1;
   }
 }
 

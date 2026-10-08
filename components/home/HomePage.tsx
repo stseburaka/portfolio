@@ -4,10 +4,10 @@ import Link from "next/link"
 import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import { siteConfig } from "@/content/config"
+import { AsciiAnimals } from "@/components/home/AsciiAnimals"
 import { PlaygroundFrames } from "@/components/home/PlaygroundFrames"
 import { StarField } from "@/components/home/StarField"
 
-const GRID_LINE = "rgba(0, 0, 0, 0.08)"
 const PLAYGROUND_GRID = { columns: 13, rows: 9 } as const
 const LOGO_WORD = "Andrei."
 const LOGO_REVEAL = "ndrei"
@@ -114,67 +114,78 @@ export function HomePage() {
     : "0 0 1 1"
 
   return (
-    <div className="portfolio-home">
+    <div
+      className="portfolio-home"
+      style={{ "--playground-row-height": `${cellHeight}px` } as CSSProperties}
+    >
       <aside className="home-info" aria-label="About Andrei">
-        <Link
-          href="/"
-          className={`home-logo logo-link${logoGlyphMetrics ? " logo-measured" : ""}`}
-          aria-label="Andrei Stseburaka home"
-        >
-          <span
-            className="logo-word text-surface text-[42px] font-semibold leading-none select-none whitespace-nowrap"
-            aria-hidden="true"
-          >
-            <span ref={logoMeasureRef} className="logo-native-run logo-reference">{LOGO_WORD}</span>
-            <span ref={logoShortMeasureRef} className="logo-native-run logo-short-reference">A.</span>
-            {!logoGlyphMetrics && <span className="logo-fallback">A.</span>}
-            {logoGlyphMetrics && (
-              <>
-                <span
-                  className="logo-native-run logo-prefix"
-                  style={{
-                    "--glyph-right": `${logoGlyphMetrics.glyphs[0].right}px`,
-                  } as CSSProperties}
-                >
-                  {LOGO_WORD}
-                </span>
-                {LOGO_REVEAL.split("").map((_, index) => {
-                  const glyph = logoGlyphMetrics.glyphs[index + 1]
-                  return (
+        <div className="home-info-panel">
+          <div className="home-info-copy">
+            <Link
+              href="/"
+              className={`home-logo logo-link${logoGlyphMetrics ? " logo-measured" : ""}`}
+              aria-label="Andrei Stseburaka home"
+            >
+              <span
+                className="logo-word text-surface text-[42px] font-semibold leading-none select-none whitespace-nowrap"
+                aria-hidden="true"
+              >
+                <span ref={logoMeasureRef} className="logo-native-run logo-reference">{LOGO_WORD}</span>
+                <span ref={logoShortMeasureRef} className="logo-native-run logo-short-reference">A.</span>
+                {!logoGlyphMetrics && <span className="logo-fallback">A<span className="logo-cursor">.</span></span>}
+                {logoGlyphMetrics && (
+                  <>
                     <span
-                      key={index}
-                      className="logo-native-run logo-letter"
+                      className="logo-native-run logo-prefix"
                       style={{
-                        "--glyph-left": `${glyph.left}px`,
-                        "--glyph-right": `${glyph.right}px`,
+                        "--glyph-right": `${logoGlyphMetrics.glyphs[0].right}px`,
                       } as CSSProperties}
                     >
                       {LOGO_WORD}
                     </span>
-                  )
-                })}
-                <span
-                  className="logo-native-run logo-dot"
-                  style={{
-                    "--glyph-left": `${logoGlyphMetrics.glyphs[LOGO_WORD.length - 1].left}px`,
-                    "--glyph-right": `${logoGlyphMetrics.glyphs[LOGO_WORD.length - 1].right}px`,
-                    "--dot-offset": `${logoGlyphMetrics.dotOffset}px`,
-                  } as CSSProperties}
-                >
-                  {LOGO_WORD}
-                </span>
-              </>
-            )}
-          </span>
-        </Link>
+                    {LOGO_REVEAL.split("").map((_, index) => {
+                      const glyph = logoGlyphMetrics.glyphs[index + 1]
+                      return (
+                        <span
+                          key={index}
+                          className="logo-native-run logo-letter"
+                          style={{
+                            "--glyph-left": `${glyph.left}px`,
+                            "--glyph-right": `${glyph.right}px`,
+                          } as CSSProperties}
+                        >
+                          {LOGO_WORD}
+                        </span>
+                      )
+                    })}
+                    <span
+                      className="logo-native-run logo-dot logo-cursor"
+                      style={{
+                        "--glyph-left": `${logoGlyphMetrics.glyphs[LOGO_WORD.length - 1].left}px`,
+                        "--glyph-right": `${logoGlyphMetrics.glyphs[LOGO_WORD.length - 1].right}px`,
+                        "--dot-offset": `${logoGlyphMetrics.dotOffset}px`,
+                      } as CSSProperties}
+                    >
+                      {LOGO_WORD}
+                    </span>
+                  </>
+                )}
+              </span>
+            </Link>
 
-        <p className="home-about">
-          Product designer working across fintech, B2B SaaS and AI. Red Dot Award winner.
-        </p>
+            <p className="home-about">
+              Product designer working across fintech, B2B SaaS and AI. Red Dot Award winner.
+            </p>
+          </div>
 
-        <a className="home-link" href={siteConfig.linkedIn} target="_blank" rel="noopener noreferrer">
-          LinkedIn →
-        </a>
+          <a className="home-link" href={siteConfig.linkedIn} target="_blank" rel="noopener noreferrer">
+            LinkedIn →
+          </a>
+        </div>
+
+        <div className="home-cats-panel">
+          <AsciiAnimals />
+        </div>
       </aside>
 
       <section className="home-playground-inset" aria-label="Playground">
@@ -190,7 +201,7 @@ export function HomePage() {
             <path
               d={innerGridPath}
               fill="none"
-              stroke={GRID_LINE}
+              stroke="var(--playground-grid-line)"
               strokeWidth="1"
             />
           </svg>
@@ -217,7 +228,7 @@ export function HomePage() {
             <path
               d={outerBorderPath}
               fill="none"
-              stroke={GRID_LINE}
+              stroke="var(--playground-grid-line)"
               strokeWidth="1"
             />
           </svg>
