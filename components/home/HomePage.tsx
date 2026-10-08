@@ -197,6 +197,7 @@ export function HomePage() {
             height="100%"
             viewBox={gridViewBox}
             preserveAspectRatio="none"
+            style={{ zIndex: 0 }}
           >
             <path
               d={innerGridPath}
@@ -204,6 +205,24 @@ export function HomePage() {
               stroke="var(--playground-grid-line)"
               strokeWidth="1"
             />
+            {playgroundSize.width > 0 && playgroundSize.height > 0 &&
+              Array.from({ length: PLAYGROUND_GRID.rows }, (_, rowIndex) =>
+                Array.from({ length: PLAYGROUND_GRID.columns }, (_, columnIndex) => (
+                  <text
+                    key={`${columnIndex}-${rowIndex}`}
+                    x={columnIndex * cellWidth + 4}
+                    y={rowIndex * cellHeight + 4}
+                    dominantBaseline="hanging"
+                    fontFamily="var(--font-ibm-plex-mono), ui-monospace, monospace"
+                    fontSize={10}
+                    fontWeight={400}
+                    letterSpacing="0"
+                    fill="#B0B0B0"
+                  >
+                    {String.fromCharCode(65 + columnIndex)}{rowIndex + 1}
+                  </text>
+                )),
+              )}
           </svg>
           {playgroundSize.width > 0 && playgroundSize.height > 0 && (
             <StarField width={playgroundSize.width} height={playgroundSize.height} />
@@ -223,7 +242,7 @@ export function HomePage() {
             height="100%"
             viewBox={gridViewBox}
             preserveAspectRatio="none"
-            style={{ zIndex: 2 }}
+            style={{ zIndex: 3 }}
           >
             <path
               d={outerBorderPath}

@@ -162,7 +162,7 @@ export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: Playg
       aria-label="Design process"
       className="absolute inset-0 block"
       onMouseLeave={handleCompositionLeave}
-      style={{ pointerEvents: "none", zIndex: 1 }}
+      style={{ pointerEvents: "none", zIndex: 2 }}
     >
       {STAGES.map((stage) => {
         const isActive = activeKey === stage.key

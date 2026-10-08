@@ -43,7 +43,7 @@ interface StarFieldProps {
 
 export function StarField({ width, height }: StarFieldProps) {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ zIndex: 0 }}>
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ zIndex: 1 }}>
       {STAR_POSITIONS.map((position, index) => {
         const size = PIXEL_STAR_SIZES[position.size]
         // Positions are authored as percentages, then snapped to whole CSS pixels for crisp SVG edges.
