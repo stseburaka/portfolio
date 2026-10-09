@@ -214,7 +214,7 @@ export function HomePage() {
                     y={rowIndex * cellHeight + 4}
                     dominantBaseline="hanging"
                     fontFamily="var(--font-ibm-plex-mono), ui-monospace, monospace"
-                    fontSize={10}
+                    fontSize={8}
                     fontWeight={400}
                     letterSpacing="0"
                     fill="#B0B0B0"
