@@ -1,79 +1,23 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import { siteConfig } from "@/content/config"
+import { AgainCollage } from "@/components/home/AgainCollage"
 import { AsciiAnimals } from "@/components/home/AsciiAnimals"
 import { PlaygroundFrames } from "@/components/home/PlaygroundFrames"
 import { StarField } from "@/components/home/StarField"
+import { SiteLogo } from "@/components/layout/SiteLogo"
+import { assetPath } from "@/lib/paths"
 
 const PLAYGROUND_GRID = { columns: 13, rows: 9 } as const
-const LOGO_WORD = "Andrei."
-const LOGO_REVEAL = "ndrei"
 
-type LogoGlyphBox = { left: number; right: number }
-
-type LogoGlyphMetrics = {
-  glyphs: LogoGlyphBox[]
-  dotOffset: number
-}
-
-export function HomePage() {
+export function HomePage({ mode }: { mode: "design" | "art" }) {
+  const isArt = mode === "art"
   const playgroundRef = useRef<HTMLDivElement>(null)
-  const logoMeasureRef = useRef<HTMLSpanElement>(null)
-  const logoShortMeasureRef = useRef<HTMLSpanElement>(null)
-  const [logoGlyphMetrics, setLogoGlyphMetrics] = useState<LogoGlyphMetrics | null>(null)
   const [playgroundSize, setPlaygroundSize] = useState({ width: 0, height: 0 })
-
-  useEffect(() => {
-    let cancelled = false
-
-    const measureGlyphs = (element: HTMLSpanElement, count: number) => {
-      const textNode = element.firstChild
-      if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return null
-
-      const hostRect = element.getBoundingClientRect()
-      const range = document.createRange()
-      const glyphs: LogoGlyphBox[] = []
-
-      for (let index = 0; index < count; index += 1) {
-        range.setStart(textNode, index)
-        range.setEnd(textNode, index + 1)
-        const rect = range.getBoundingClientRect()
-        glyphs.push({
-          left: rect.left - hostRect.left,
-          right: rect.right - hostRect.left,
-        })
-      }
-
-      return glyphs
-    }
-
-    const measure = () => {
-      const fullWord = logoMeasureRef.current
-      const shortWord = logoShortMeasureRef.current
-      if (!fullWord || !shortWord) return
-
-      const glyphs = measureGlyphs(fullWord, LOGO_WORD.length)
-      const shortGlyphs = measureGlyphs(shortWord, 2)
-      if (!glyphs || !shortGlyphs) return
-
-      setLogoGlyphMetrics({
-        glyphs,
-        dotOffset: shortGlyphs[1].left - glyphs[LOGO_WORD.length - 1].left,
-      })
-    }
-
-    measure()
-    document.fonts.ready.then(() => {
-      if (!cancelled) measure()
-    })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     const element = playgroundRef.current
@@ -121,75 +65,48 @@ export function HomePage() {
       <aside className="home-info" aria-label="About Andrei">
         <div className="home-info-panel">
           <div className="home-info-copy">
-            <Link
-              href="/"
-              className={`home-logo logo-link${logoGlyphMetrics ? " logo-measured" : ""}`}
-              aria-label="Andrei Stseburaka home"
-            >
-              <span
-                className="logo-word text-surface text-[42px] font-semibold leading-none select-none whitespace-nowrap"
-                aria-hidden="true"
-              >
-                <span ref={logoMeasureRef} className="logo-native-run logo-reference">{LOGO_WORD}</span>
-                <span ref={logoShortMeasureRef} className="logo-native-run logo-short-reference">A.</span>
-                {!logoGlyphMetrics && <span className="logo-fallback">A<span className="logo-cursor">.</span></span>}
-                {logoGlyphMetrics && (
-                  <>
-                    <span
-                      className="logo-native-run logo-prefix"
-                      style={{
-                        "--glyph-right": `${logoGlyphMetrics.glyphs[0].right}px`,
-                      } as CSSProperties}
-                    >
-                      {LOGO_WORD}
-                    </span>
-                    {LOGO_REVEAL.split("").map((_, index) => {
-                      const glyph = logoGlyphMetrics.glyphs[index + 1]
-                      return (
-                        <span
-                          key={index}
-                          className="logo-native-run logo-letter"
-                          style={{
-                            "--glyph-left": `${glyph.left}px`,
-                            "--glyph-right": `${glyph.right}px`,
-                          } as CSSProperties}
-                        >
-                          {LOGO_WORD}
-                        </span>
-                      )
-                    })}
-                    <span
-                      className="logo-native-run logo-dot logo-cursor"
-                      style={{
-                        "--glyph-left": `${logoGlyphMetrics.glyphs[LOGO_WORD.length - 1].left}px`,
-                        "--glyph-right": `${logoGlyphMetrics.glyphs[LOGO_WORD.length - 1].right}px`,
-                        "--dot-offset": `${logoGlyphMetrics.dotOffset}px`,
-                      } as CSSProperties}
-                    >
-                      {LOGO_WORD}
-                    </span>
-                  </>
-                )}
-              </span>
-            </Link>
+            <SiteLogo
+              href={isArt ? "/a" : "/"}
+              className="home-logo"
+              label="Andrei Stseburaka home"
+            />
 
             <p className="home-about">
-              Product designer working across fintech, B2B SaaS and AI. Red Dot Award winner.
+              {isArt
+                ? "Belarusian designer and photographer based in Berlin. Exploring migration, protest, and exclusion through visual research and artistic practice."
+                : "Product designer working across fintech, B2B SaaS and AI. Red Dot Award winner."}
             </p>
           </div>
 
-          <a className="home-link" href={siteConfig.linkedIn} target="_blank" rel="noopener noreferrer">
-            LinkedIn →
+          <a
+            className="home-link"
+            href={isArt ? siteConfig.instagram : siteConfig.linkedIn}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {isArt ? "Instagram" : "LinkedIn"} →
           </a>
         </div>
 
         <div className="home-cats-panel">
-          <AsciiAnimals />
+          {isArt ? <AgainCollage /> : <AsciiAnimals />}
         </div>
       </aside>
 
       <section className="home-playground-inset" aria-label="Playground">
         <div ref={playgroundRef} className="home-playground">
+          <Link
+            href={isArt ? "/" : "/a"}
+            aria-label={isArt ? "Switch to Design" : "Switch to Art"}
+            className="home-mode-switch"
+          >
+            <Image
+              src={assetPath(isArt ? "/icons/switch-to-design.svg" : "/icons/switch-to-art.svg")}
+              alt=""
+              width={48}
+              height={24}
+            />
+          </Link>
           <svg
             className="home-playground-grid"
             aria-hidden="true"
@@ -229,6 +146,7 @@ export function HomePage() {
           )}
           {playgroundSize.width > 0 && playgroundSize.height > 0 && (
             <PlaygroundFrames
+              mode={mode}
               cellWidth={cellWidth}
               cellHeight={cellHeight}
               columns={PLAYGROUND_GRID.columns}

@@ -4,6 +4,7 @@ export const siteConfig = {
   location: "Berlin",
   year: "2026",
   linkedIn: "https://www.linkedin.com/in/steburako/",
+  instagram: "https://www.instagram.com/voyeur.voyager/",
   email: "andrew.steburako@pandadoc.com",
 
   showAboutSection: false,

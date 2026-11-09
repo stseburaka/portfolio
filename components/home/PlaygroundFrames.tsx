@@ -1,6 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useSyncExternalStore } from "react"
+import { AgainFrameContent, againCardLabel } from "@/components/home/AgainFrameContent"
 import { assetPath } from "@/lib/paths"
 
 type StageKey = "understand" | "shape" | "ship"
@@ -48,6 +50,16 @@ const STAGES: Stage[] = [
     subLabels: ["work with engineers", "polish the details", "ship to users", "measure impact", "iterate"],
   },
 ]
+
+const ART_HOVER_QUERY = "(min-width: 768px) and (hover: hover) and (pointer: fine)"
+
+const subscribeToArtHover = (callback: () => void) => {
+  const media = window.matchMedia(ART_HOVER_QUERY)
+  media.addEventListener("change", callback)
+  return () => media.removeEventListener("change", callback)
+}
+
+const getArtHoverSnapshot = () => window.matchMedia(ART_HOVER_QUERY).matches
 
 const FRAME_ANIM_MS = 800
 const SUB_LABEL_STAGGER_MS = 70
@@ -123,21 +135,24 @@ function getStageRects(columns: number, rows: number) {
 }
 
 interface PlaygroundFramesProps {
+  mode: "design" | "art"
   cellWidth: number
   cellHeight: number
   columns: number
   rows: number
 }
 
-export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: PlaygroundFramesProps) {
+export function PlaygroundFrames({ mode, cellWidth, cellHeight, columns, rows }: PlaygroundFramesProps) {
+  const isArt = mode === "art"
   const [hoverKey, setHoverKey] = useState<StageKey | null>(null)
+  const artCanHover = useSyncExternalStore(subscribeToArtHover, getArtHoverSnapshot, () => false)
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
     getReducedMotionSnapshot,
     () => false,
   )
 
-  const activeKey = hoverKey ?? "shape"
+  const activeKey = ((!isArt || artCanHover) && hoverKey) || "shape"
   const rects = getStageRects(columns, rows)
   if (!rects) return null
 
@@ -159,7 +174,7 @@ export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: Playg
   return (
     <div
       role="group"
-      aria-label="Design process"
+      aria-label={isArt ? "Again project themes" : "Design process"}
       className="absolute inset-0 block"
       onMouseLeave={handleCompositionLeave}
       style={{ pointerEvents: "none", zIndex: 2 }}
@@ -173,7 +188,10 @@ export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: Playg
         return (
           <div
             key={stage.key}
-            onMouseEnter={() => handleFrameEnter(stage.key)}
+            onMouseEnter={isArt ? undefined : () => handleFrameEnter(stage.key)}
+            onPointerEnter={isArt && artCanHover ? (event) => {
+              if (event.pointerType === "mouse") handleFrameEnter(stage.key)
+            } : undefined}
             onMouseLeave={() => setHoverKey((current) => current === stage.key ? null : current)}
             style={{
               position: "absolute",
@@ -194,7 +212,7 @@ export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: Playg
               pointerEvents: "auto",
             }}
           >
-            {isActive && (
+            {isActive && !isArt && (
               <video
                 key={stage.key}
                 src={assetPath(stage.video)}
@@ -213,40 +231,27 @@ export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: Playg
               />
             )}
 
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                ...(stage.anchor === "bottom-left" ? { left: 0 } : { right: 0 }),
-                display: "flex",
-                flexDirection: "column-reverse",
-                alignItems: stage.anchor === "bottom-left" ? "flex-start" : "flex-end",
-                maxWidth: "100%",
-                overflow: "hidden",
-              }}
-            >
+            {isArt ? (
+              <AgainFrameContent
+                cardKey={stage.key}
+                active={isActive}
+                fontSize={labelFontSize}
+                reducedMotion={reducedMotion}
+              />
+            ) : (
               <div
                 style={{
+                  position: "absolute",
+                  bottom: 0,
+                  ...(stage.anchor === "bottom-left" ? { left: 0 } : { right: 0 }),
+                  display: "flex",
+                  flexDirection: "column-reverse",
+                  alignItems: stage.anchor === "bottom-left" ? "flex-start" : "flex-end",
                   maxWidth: "100%",
-                  fontFamily: "var(--font-ibm-plex-mono, monospace)",
-                  fontSize: labelFontSize,
-                  fontWeight: 500,
-                  letterSpacing: "0.04em",
-                  padding: labelPadding,
-                  background: isActive ? "#000" : "transparent",
-                  color: isActive ? "#fff" : "#000",
-                  whiteSpace: "nowrap",
-                  width: "max-content",
-                  lineHeight: 1.4,
-                  userSelect: "none",
-                  transition: reducedMotion ? "none" : `background-color ${FRAME_ANIM_MS}ms ${EASE}, color ${FRAME_ANIM_MS}ms ${EASE}`,
+                  overflow: "hidden",
                 }}
               >
-                {stage.label}
-              </div>
-              {isActive && stage.subLabels.map((text, index) => (
                 <div
-                  key={text}
                   style={{
                     maxWidth: "100%",
                     fontFamily: "var(--font-ibm-plex-mono, monospace)",
@@ -254,20 +259,49 @@ export function PlaygroundFrames({ cellWidth, cellHeight, columns, rows }: Playg
                     fontWeight: 500,
                     letterSpacing: "0.04em",
                     padding: labelPadding,
-                    background: "#000",
-                    color: "#fff",
+                    background: isActive ? "#000" : "transparent",
+                    color: isActive ? "#fff" : "#000",
                     whiteSpace: "nowrap",
                     width: "max-content",
                     lineHeight: 1.4,
                     userSelect: "none",
-                    animation: reducedMotion ? "none" : `hero-sublabel-in ${SUB_LABEL_ANIM_MS}ms ease-out both`,
-                    animationDelay: reducedMotion ? "0ms" : `${SUB_LABEL_STAGGER_MS + index * SUB_LABEL_STAGGER_MS}ms`,
+                    transition: reducedMotion ? "none" : `background-color ${FRAME_ANIM_MS}ms ${EASE}, color ${FRAME_ANIM_MS}ms ${EASE}`,
                   }}
                 >
-                  {text}
+                  {stage.label}
                 </div>
-              ))}
-            </div>
+                {isActive && stage.subLabels.map((text, index) => (
+                  <div
+                    key={text}
+                    style={{
+                      maxWidth: "100%",
+                      fontFamily: "var(--font-ibm-plex-mono, monospace)",
+                      fontSize: labelFontSize,
+                      fontWeight: 500,
+                      letterSpacing: "0.04em",
+                      padding: labelPadding,
+                      background: "#000",
+                      color: "#fff",
+                      whiteSpace: "nowrap",
+                      width: "max-content",
+                      lineHeight: 1.4,
+                      userSelect: "none",
+                      animation: reducedMotion ? "none" : `hero-sublabel-in ${SUB_LABEL_ANIM_MS}ms ease-out both`,
+                      animationDelay: reducedMotion ? "0ms" : `${SUB_LABEL_STAGGER_MS + index * SUB_LABEL_STAGGER_MS}ms`,
+                    }}
+                  >
+                    {text}
+                  </div>
+                ))}
+              </div>
+            )}
+            {isArt && (
+              <Link
+                href="/a/again"
+                aria-label={againCardLabel(stage.key)}
+                className={`absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-4 ${isActive ? "focus-visible:outline-white" : "focus-visible:outline-ink"}`}
+              />
+            )}
           </div>
         )
       })}

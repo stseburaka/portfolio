@@ -126,7 +126,6 @@ body:has(.portfolio-home) > main {
   text-decoration: none;
 }
 
-.home-logo .logo-a,
 .home-logo .logo-word {
   font-size: 32px;
 }
@@ -182,6 +181,37 @@ body:has(.portfolio-home) > main {
   pointer-events: none;
 }
 
+.home-mode-switch {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
+  display: flex;
+  align-items: flex-start;
+  min-height: 44px;
+}
+
+@media (hover: hover) {
+  .home-mode-switch:hover img {
+    filter: brightness(0.96);
+  }
+}
+
+.home-mode-switch:focus-visible {
+  outline: none;
+}
+
+.home-mode-switch:focus-visible img {
+  outline: 1px solid var(--color-ink-2);
+  outline-offset: 2px;
+}
+
+@media (767px < width <= 1100px) {
+  .home-mode-switch {
+    top: 16px;
+  }
+}
+
 @media (max-width: 767px) {
   .ascii-cats-stage {
     display: none;
@@ -230,6 +260,15 @@ body:has(.portfolio-home) > main {
   justify-content: flex-start;
   interpolate-size: allow-keywords;
   transition: max-width 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.header-logo:focus-visible {
+  outline: 2px solid var(--color-surface);
+  outline-offset: -4px;
+}
+
+.header-logo .logo-cursor {
+  animation: none;
 }
 
 .logo-word {
